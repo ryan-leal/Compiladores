@@ -2,7 +2,7 @@
 import sys # Used to argv
 
 def match(input):
-    palavrasReservadas = "program", "var", "integer", "then", "begin"
+    palavrasReservadas = "program", "var", "integer", "then", "begin", "end"
     for palavras in palavrasReservadas:
         if palavras in input:
             print(input + ' eh ' + palavras)
