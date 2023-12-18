@@ -25,12 +25,15 @@ def match(input):
 
 def getProgramFile(fileInput):
     patternsPascal = [
+        ('COMENTARIO', r'{[\S\s]*?}'),
         ('PALAVRA_RESERVADA', r'\b(program|var|integer|real|boolean|procedure|begin|end|if|then|else|while|do|not)\b'),
+        ('REAL', r'\b\d+\.\d*'),
         ('INTEIRO', r'\b\d+\b'),
         ('ATRIBUICAO', r':='),
         ('RELACIONAIS', r'(<=|>=|<>|>|<|=)'),
         ('OPERADORES_ADITIVOS', r'(\+|-|\bor\b)'),
         ('OPERADORES_MULTIPLICATIVOS', r'(\*|/|\band\b)'),
+        ('IDENTIFICADOR', r'\b[a-z][a-zA-Z0-9_]*\b'),
         ('DELIMITADOR', r'[;.:\(\),]')
     ]
     opennedFile = open(fileInput, 'r')
