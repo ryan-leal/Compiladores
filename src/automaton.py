@@ -2,22 +2,44 @@
 class FiniteAutomaton:
     #Construtor contendo...
     def __init__(self):
-        self.states = {'q0', 'q1', 'q2'} # Estados do automato
-        self.current_state = 'q0' # Estado atual, inicialmente é o inicial
-        self.accept_state = 'q2' # Estados de aceitacao
+        self.states = {'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13'} # Estados do automato
+        self.current_state = 'q1' # Estado atual, inicialmente é o inicial
+        self.accept_state = {'q3','q4','q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13'} # Estados de aceitacao
 
     # Funcao com as transicoes possiveis, recebe o input do automato
     def transition(self, char):
-        if self.current_state == 'q0' and char == 'A':
+        if self.current_state == 'q1' and char == ' ':
             self.current_state = 'q1'
-        elif self.current_state == 'q1' and char == 'B':
+        elif self.current_state == 'q1' and char == '{':#comentarios-abre chave
             self.current_state = 'q2'
-        elif self.current_state == 'q1' and char == 'A':
-            self.current_state = 'q1'
-        elif self.current_state == 'q2' and char == 'B':
+        elif self.current_state == 'q2' and char == 'regex':#comentarios-V menos}
             self.current_state = 'q2'
-        elif self.current_state == 'q2' and char == 'A':
+        elif self.current_state == 'q2' and char == '}':#comentarios-fecha chave
             self.current_state = 'q1'
+        elif self.current_state == 'q1' and char == 'regex':#identidicador
+            self.current_state = 'q3'
+        elif self.current_state == 'q3' and char == 'regex':#identidicador iterativo
+            self.current_state = 'q3'
+        elif self.current_state == 'q1' and char == 'regex':#numero
+            self.current_state = 'q4'
+        elif self.current_state == 'q4' and char == 'regex':#numero-iterativo
+            self.current_state = 'q4'
+        elif self.current_state == 'q1' and char == '.':
+            self.current_state = 'q5'
+        elif self.current_state == 'q1' and char == '+':
+            self.current_state = 'q8'
+        elif self.current_state == 'q1' and char == ';':
+            self.current_state = 'q7'
+        elif self.current_state == 'q1' and char == '*':
+            self.current_state = 'q10'
+        elif self.current_state == 'q1' and char == '(':
+            self.current_state = 'q9'
+        elif self.current_state == 'q1' and char == ')':
+            self.current_state = 'q11'
+        elif self.current_state == 'q1' and char == ':':
+            self.current_state = 'q12'
+        elif self.current_state == 'q1' and char == '=':
+            self.current_state = 'q13'
         else:
             # Caso nao haja nenhum estado correspondente
             self.current_state = 'invalid'
