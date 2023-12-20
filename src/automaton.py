@@ -1,52 +1,83 @@
+import sys
+
+digits = set("0123456789")
+letters = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+spaces = set(" \t\n")
+reserved_word = ["program", "if", "else", "var"]
+
+
+
+
 # Classe que irá conter o automato
 class FiniteAutomaton:
     #Construtor contendo...
     def __init__(self):
-        self.states = {'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13'} # Estados do automato
-        self.current_state = 'q1' # Estado atual, inicialmente é o inicial
-        self.accept_state = {'q3','q4','q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q13'} # Estados de aceitacao
+        self.states = {'q0', 'q1', 'q2'} # Estados do automato
+        self.current_state = 'q0' # Estado atual, inicialmente é o inicial
+        self.accept_state = {'q1', 'q2'} # Estados de aceitacao
+        self.buffer = ""
 
     # Funcao com as transicoes possiveis, recebe o input do automato
     def transition(self, char):
-        if self.current_state == 'q1' and char == ' ':
+        if self.current_state == 'q0' and char in spaces:
+            print(f"i'm in {self.current_state} and i saw a space")
+            self.current_state = 'q0'
+            print(f"Now i'm in {self.current_state}")
+            if self.buffer in reserved_word:
+                print(f"Reserved Word: {self.buffer} found, erasing buffer")
+            self.buffer = ""
+        elif self.current_state == 'q0' and char in digits:#comentarios-abre chave
+            print(f"i'm in {self.current_state} and i saw {char} digit")
             self.current_state = 'q1'
-        elif self.current_state == 'q1' and char == '{':#comentarios-abre chave
+            print(f"Now i'm in {self.current_state}")
+        elif self.current_state == 'q0' and char in letters:#comentarios-abre chave
+            print(f"i'm in {self.current_state} and i saw {char} letter")
             self.current_state = 'q2'
-        elif self.current_state == 'q2' and char == 'regex':#comentarios-V menos}
-            self.current_state = 'q2'
-        elif self.current_state == 'q2' and char == '}':#comentarios-fecha chave
+            print(f"Now i'm in {self.current_state}")
+            self.buffer += char
+            print(f"Current Buffer: {self.buffer}")
+        elif self.current_state == 'q1' and char in spaces:#comentarios-abre chave
+            print(f"i'm in {self.current_state} and i saw a space")
             self.current_state = 'q1'
-        elif self.current_state == 'q1' and char == 'regex':#identidicador
-            self.current_state = 'q3'
-        elif self.current_state == 'q3' and char == 'regex':#identidicador iterativo
-            self.current_state = 'q3'
-        elif self.current_state == 'q1' and char == 'regex':#numero
-            self.current_state = 'q4'
-        elif self.current_state == 'q4' and char == 'regex':#numero-iterativo
-            self.current_state = 'q4'
-        elif self.current_state == 'q1' and char == '.':
-            self.current_state = 'q5'
-        elif self.current_state == 'q1' and char == '+':
-            self.current_state = 'q8'
-        elif self.current_state == 'q1' and char == ';':
-            self.current_state = 'q7'
-        elif self.current_state == 'q1' and char == '*':
-            self.current_state = 'q10'
-        elif self.current_state == 'q1' and char == '(':
-            self.current_state = 'q9'
-        elif self.current_state == 'q1' and char == ')':
-            self.current_state = 'q11'
-        elif self.current_state == 'q1' and char == ':':
-            self.current_state = 'q12'
-        elif self.current_state == 'q1' and char == '=':
-            self.current_state = 'q13'
+            print(f"Now i'm in {self.current_state}")
+            if self.buffer in reserved_word:
+                print(f"Reserved Word: {self.buffer} found, erasing buffer")
+            self.buffer = ""
+        elif self.current_state == 'q1' and char in digits:#comentarios-abre chave
+            print(f"i'm in {self.current_state} and i saw {char} digit")
+            self.current_state = 'q1'
+            print(f"Now i'm in {self.current_state}")
+        elif self.current_state == 'q1' and char in letters:#comentarios-abre chave
+            print(f"i'm in {self.current_state} and i saw {char} letter")
+            self.current_state = 'q2'
+            print(f"Now i'm in {self.current_state}")
+            self.buffer+=char
+            print(f"Current Buffer: {self.buffer}")
+        elif self.current_state == 'q2' and char in spaces:#comentarios-abre chave
+            print(f"i'm in {self.current_state} and i saw a space")
+            self.current_state = 'q2'
+            print(f"Now i'm in {self.current_state}")
+            if self.buffer in reserved_word:
+                print(f"Reserved Word: {self.buffer} found, erasing buffer")
+            self.buffer = ""
+        elif self.current_state == 'q2' and char in digits:#comentarios-abre chave
+            print(f"i'm in {self.current_state} and i saw {char} digit")
+            self.current_state = 'q1'
+            print(f"Now i'm in {self.current_state}")
+        elif self.current_state == 'q2' and char in letters:#comentarios-abre chave
+            print(f"i'm in {self.current_state} and i saw {char} letter")
+            self.current_state = 'q2'
+            print(f"Now i'm in {self.current_state}")
+            self.buffer += char
+            print(f"Current Buffer: {self.buffer}")
         else:
             # Caso nao haja nenhum estado correspondente
-            self.current_state = 'invalid'
+            print('Not a mapped character')
+            
     
     # Verifica se o automato esta em um estado de aceitacao
     def is_accepted(self):
-        return self.current_state == self.accept_state
+        return self.current_state in self.accept_state
 
     # Recebe a string e faz as transicoes para cada caractere
     #  e por ultimo verifica se o ultimo estado é de aceitacao
@@ -57,10 +88,18 @@ class FiniteAutomaton:
         return self.is_accepted()
 
 
+# Open and close input file
+def getProgramFile(fileInput):
+    with open(fileInput, 'r') as opennedFile:
+        data = opennedFile.read()
+    return data
+
 # Define uma função main que é chamada no começo do programa
 def main():
+    args = sys.argv
+    input_string = getProgramFile(args[1])
+
     automaton = FiniteAutomaton() # Construtor do automato
-    input_string = 'AAB' # Palavara entrada do automato
 
     if automaton.process_input(input_string):
         print(f"The string '{input_string}' is accepted.")
