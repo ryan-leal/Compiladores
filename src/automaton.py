@@ -1,12 +1,31 @@
 import sys
+import re
 
 digits = set("0123456789")
 letters = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 spaces = set(" \t\n")
-reserved_word = ["program", "if", "else", "var"]
 
+def build_regex():
+    # All pascal regex in groups
+    patternsPascal = [
+#        ('COMMENT', r'{[\S\s]*?}'),
+#        ('OPENNED_COMMENT', r'{[\S\s]*[^}]'),
+        ('RESERVED_WORD', r'\b(program|var|integer|real|boolean|procedure|begin|end|if|then|else|while|do|not)\b'),
+#        ('REAL', r'\b\d+\.\d*'),
+#        ('INTEGER', r'\b\d+\b'),
+#        ('ASSIGNMENT', r':='),
+#        ('RELATIONAL_OPERATOR', r'(<=|>=|<>|>|<|=)'),
+#        ('ADDITIVE_OPERATOR', r'(\+|-|\bor\b)'),
+#        ('MULTIPLICATION_OPERATOR', r'(\*|/|\band\b)'),
+#        ('IDENTIFIER', r'\b[a-z][a-zA-Z0-9_]*\b'),
+#        ('DELIMITER', r'[;.:\(\),]'),
+#        ('ERROR_INVALID_TOKEN',r'[^A-Za-z0-9=<>:;_\+\-\*\/{}\t\s.]')
+    ]
 
-
+    # Combine all regex groups using OR operator, compile and return the regex
+    combined_pattern = '|'.join(f'(?P<{name}>{pattern})' for name, pattern in patternsPascal)
+    regex = re.compile(combined_pattern)
+    return regex
 
 # Classe que irá conter o automato
 class FiniteAutomaton:
@@ -20,59 +39,12 @@ class FiniteAutomaton:
     # Funcao com as transicoes possiveis, recebe o input do automato
     def transition(self, char):
         if self.current_state == 'q0' and char in spaces:
-            print(f"i'm in {self.current_state} and i saw a space")
-            self.current_state = 'q0'
-            print(f"Now i'm in {self.current_state}")
-            if self.buffer in reserved_word:
-                print(f"Reserved Word: {self.buffer} found, erasing buffer")
-            self.buffer = ""
-        elif self.current_state == 'q0' and char in digits:#comentarios-abre chave
-            print(f"i'm in {self.current_state} and i saw {char} digit")
-            self.current_state = 'q1'
-            print(f"Now i'm in {self.current_state}")
-        elif self.current_state == 'q0' and char in letters:#comentarios-abre chave
-            print(f"i'm in {self.current_state} and i saw {char} letter")
-            self.current_state = 'q2'
-            print(f"Now i'm in {self.current_state}")
-            self.buffer += char
-            print(f"Current Buffer: {self.buffer}")
-        elif self.current_state == 'q1' and char in spaces:#comentarios-abre chave
-            print(f"i'm in {self.current_state} and i saw a space")
-            self.current_state = 'q1'
-            print(f"Now i'm in {self.current_state}")
-            if self.buffer in reserved_word:
-                print(f"Reserved Word: {self.buffer} found, erasing buffer")
-            self.buffer = ""
-        elif self.current_state == 'q1' and char in digits:#comentarios-abre chave
-            print(f"i'm in {self.current_state} and i saw {char} digit")
-            self.current_state = 'q1'
-            print(f"Now i'm in {self.current_state}")
-        elif self.current_state == 'q1' and char in letters:#comentarios-abre chave
-            print(f"i'm in {self.current_state} and i saw {char} letter")
-            self.current_state = 'q2'
-            print(f"Now i'm in {self.current_state}")
-            self.buffer+=char
-            print(f"Current Buffer: {self.buffer}")
-        elif self.current_state == 'q2' and char in spaces:#comentarios-abre chave
-            print(f"i'm in {self.current_state} and i saw a space")
-            self.current_state = 'q2'
-            print(f"Now i'm in {self.current_state}")
-            if self.buffer in reserved_word:
-                print(f"Reserved Word: {self.buffer} found, erasing buffer")
-            self.buffer = ""
-        elif self.current_state == 'q2' and char in digits:#comentarios-abre chave
-            print(f"i'm in {self.current_state} and i saw {char} digit")
-            self.current_state = 'q1'
-            print(f"Now i'm in {self.current_state}")
-        elif self.current_state == 'q2' and char in letters:#comentarios-abre chave
-            print(f"i'm in {self.current_state} and i saw {char} letter")
-            self.current_state = 'q2'
-            print(f"Now i'm in {self.current_state}")
-            self.buffer += char
-            print(f"Current Buffer: {self.buffer}")
+            print("Transicao teste q0 para ele mesmo")
+        elif self.current_state == 'q0' and char in digits:
+            print('Transicao teste q0 para digitos')
         else:
             # Caso nao haja nenhum estado correspondente
-            print('Not a mapped character')
+            
             
     
     # Verifica se o automato esta em um estado de aceitacao
@@ -82,8 +54,14 @@ class FiniteAutomaton:
     # Recebe a string e faz as transicoes para cada caractere
     #  e por ultimo verifica se o ultimo estado é de aceitacao
     def process_input(self, input_string):
+        regex = build_regex()
         for char in input_string:
             self.transition(char)
+            # Search for Reserved Words
+            match = regex.search(self.buffer)  
+            if match:
+                print(f'I found an {match.lastgroup} : {match.group()}')
+                self.buffer = ""
 
         return self.is_accepted()
 
