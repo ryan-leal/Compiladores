@@ -19,8 +19,8 @@ def build_regex():
 #        ('RELATIONAL_OPERATOR', r'(<=|>=|<>|>|<|=)'),
 #        ('ADDITIVE_OPERATOR', r'(\+|-|\bor\b)'),
 #        ('MULTIPLICATION_OPERATOR', r'(\*|/|\band\b)'),
-#        ('IDENTIFIER', r'\b[a-z][a-zA-Z0-9_]*\b'),
-#        ('DELIMITER', r'[;.:\(\),]'),
+        ('IDENTIFIER', r'\b[a-z][a-zA-Z0-9_]*\b'),
+        ('DELIMITER', r'[;\.:\(\),]'),
 #        ('ERROR_INVALID_TOKEN',r'[^A-Za-z0-9=<>:;_\+\-\*\/{}\t\s.]')
     ]
 
@@ -33,61 +33,57 @@ def build_regex():
 class FiniteAutomaton:
     #Construtor contendo...
     def __init__(self):
-        self.states = {'q1', 'q2','q3','q4','q5'} # Estados do automato
+        self.states = {'q1', 'q2','q3','q4','q5','q6'} # Estados do automato
         self.current_state = 'q1' # Estado atual, inicialmente é o inicial
-        self.accept_state = {'q3','q4','q5'} # Estados de aceitacao
+        self.accept_state = {'q3','q4','q5','q6'} # Estados de aceitacao
         self.regex = build_regex()
         self.buffer = ""
         self.lineCount = 1
 
     # Funcao com as transicoes possiveis, recebe o input do automato
     def transition(self, char):
-        if char == '{':
-            print(f'Open Comment in line {self.lineCount}')
-            self.buffer = ""
-            self.current_state = 'q2'
         # Q1 TRANSITIONS
         if self.current_state == 'q1' and char in spaces:
             print("Q1 -> Q1 : Spaces")
         elif self.current_state == 'q1' and re.match(r'[a-z]', char):
-            print(f'Q1 -> Q3 : {char} in line {self.lineCount} - Start search for identifier')
+            print(f'Q1 -> Q3 : {char}')
             self.buffer += char
             self.current_state = 'q3'
-        elif self.current_state == 'q1' and char in re.match(r'\d', char):#q1->inteiro->q4
-            print('Transicao teste q1 para q4(inteiro)')
-            self.current_state == 'q4'
+        elif self.current_state == 'q1' and re.match(r'\d', char):#q1->inteiro->q4
+            print(f'Q1 -> Q4: line {self.lineCount} - {char}')
+            self.current_state = 'q4'
+            self.buffer += char
+        elif self.current_state == 'q1' and re.match(r'[;\.:\(\),]', char):
+            print(f'Q1 -> Q6: line {self.lineCount} - {char}')
+            self.current_state = 'q6'
+            self.buffer += char
         # Q2 TRANSITION
         elif self.current_state == 'q2' and char != '}':
             return
         # Q3 TRANSITIONS
-        elif self.current_state == 'q3':
-            if re.match(r'[a-zA-Z0-9]', char):
-                print(f'Q3 -> Q3 : {char}')
-                self.buffer += char
-            elif self.regex.fullmatch(self.buffer):
-                print(f'Q3 -> Q1: Found {self.regex.fullmatch(self.buffer).group()} in line {self.lineCount}')
-                self.buffer = ""
-                self.current_state = 'q1'
-            elif re.fullmatch(r'\b[a-z][a-zA-Z0-9_]*\b', self.buffer):
-                print(f'Q3 -> Q1: Found {self.buffer} in line {self.lineCount} - Identifier')
-                self.buffer = ""
-                self.current_state = 'q1' 
+        elif self.current_state == 'q3' and re.match(r'[a-zA-Z0-9]', char):
+            print(f'Q3 -> Q3 : {char}')
+            self.buffer += char
         #Q4 TRANSITIONS
-            elif self.current_state == 'q4' and char in re.match(r'\d', char):#q4->inteiro->q4
-                print('Transicao teste q4 para q4(inteiro)')
-                self.current_state == 'q4'
-            elif self.current_state == 'q4' and char =='.':#q4->.->q5
-                print('Transicao teste q4 para q5(real)')
-                self.current_state == 'q5'
-        #Q5 TRANSITIONS
-            elif self.current_state == 'q5' and char in re.match(r'\d', char):#q5->real->q5
-                print('Transicao teste q5 para q5(real)')
-                self.current_state == 'q5'               
-            else:
-                # Caso nao haja nenhuma transicao disponivel
-                print(f'{self.current_state.upper()} -> Q1 : Sem transicao')
-                self.current_state = 'q1'
-                self.buffer = ""
+        elif self.current_state == 'q4' and re.match(r'\d', char):#q4->inteiro->q4
+            print(f'Q4 -> Q4: {char}')
+            self.buffer += char
+        elif self.current_state == 'q4' and char =='.':#q4->.->q5
+            print('Q4 -> Q5: Integer to Real')
+            self.buffer += char
+            self.current_state = 'q5'
+    #Q5 TRANSITIONS
+        elif self.current_state == 'q5' and re.match(r'\d', char):#q5->real->q5
+            print(f'Q5 -> Q5: Real - {char}')
+            self.buffer += char
+            self.current_state = 'q5'             
+        else:
+            for match in self.regex.finditer(self.buffer):
+                print(f'{self.current_state.upper()} -> Q1: Line {self.lineCount} - {match.lastgroup}: {match.group()} ')
+            # Caso nao haja nenhuma transicao disponivel
+            print(f'{self.current_state.upper()} -> Q1 : Sem transicao')
+            self.current_state = 'q1'
+            self.buffer = ""
         
                 
     # Verifica se o automato esta em um estado de aceitacao
@@ -117,10 +113,7 @@ def main():
 
     automaton = FiniteAutomaton() # Construtor do automato
 
-    if automaton.process_input(input_string):
-        print(f"The string '{input_string}' is accepted.")
-    else:
-        print(f"The string '{input_string}' is not accepted.")
+    automaton.process_input(input_string)
 
 # Executado no começo do programa
 if __name__ == "__main__":

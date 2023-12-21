@@ -1,6 +1,8 @@
-program teste;
-var{
-	teste1:=10;
-begin}
-
-end.
+program teste; {programa exemplo} 
+var  
+	valor1: integer;  
+	valor2: real; 
+begin  
+	valor1 := 10;
+	valor2 := 17.3; 
+end. 
