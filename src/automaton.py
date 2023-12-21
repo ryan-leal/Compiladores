@@ -11,8 +11,8 @@ def build_regex():
 #        ('COMMENT', r'{[\S\s]*?}'),
 #        ('OPENNED_COMMENT', r'{[\S\s]*[^}]'),
         ('RESERVED_WORD', r'\b(program|var|integer|real|boolean|procedure|begin|end|if|then|else|while|do|not)\b'),
-#        ('REAL', r'\b\d+\.\d*'),
-#        ('INTEGER', r'\b\d+\b'),
+        ('REAL', r'\b\d+\.\d*'),
+        ('INTEGER', r'\b\d+\b'),
 #        ('ASSIGNMENT', r':='),
 #        ('RELATIONAL_OPERATOR', r'(<=|>=|<>|>|<|=)'),
 #        ('ADDITIVE_OPERATOR', r'(\+|-|\bor\b)'),
@@ -31,19 +31,31 @@ def build_regex():
 class FiniteAutomaton:
     #Construtor contendo...
     def __init__(self):
-        self.states = {'q0', 'q1', 'q2'} # Estados do automato
-        self.current_state = 'q0' # Estado atual, inicialmente é o inicial
-        self.accept_state = {'q1', 'q2'} # Estados de aceitacao
+        self.states = {'q1', 'q2','q3','q4','q5'} # Estados do automato
+        self.current_state = 'q1' # Estado atual, inicialmente é o inicial
+        self.accept_state = {'q3','q4','q5'} # Estados de aceitacao
         self.buffer = ""
 
     # Funcao com as transicoes possiveis, recebe o input do automato
     def transition(self, char):
-        if self.current_state == 'q0' and char in spaces:
-            print("Transicao teste q0 para ele mesmo")
-        elif self.current_state == 'q0' and char in digits:
-            print('Transicao teste q0 para digitos')
+        regex=build_regex()
+        if self.current_state == 'q1' and char in spaces:#q->espaço->q
+            print("Transicao teste q1 para ele mesmo")
+        elif self.current_state == 'q1' and char in regex.search(self.buffer):#q1->inteiro->q4
+            print('Transicao teste q1 para q4(inteiro)')
+            self.current_state == 'q4'
+        elif self.current_state == 'q4' and char in regex.search(self.buffer):#q4->inteiro->q4
+            print('Transicao teste q4 para q4(inteiro)')
+            self.current_state == 'q4'
+        elif self.current_state == 'q4' and char =='.':#q4->.->q5
+            print('Transicao teste q4 para q5(real)')
+            self.current_state == 'q5'
+        elif self.current_state == 'q5' and char in regex.search(self.buffer):#q5->real->q5
+            print('Transicao teste q5 para q5(real)')
+            self.current_state == 'q5'
         else:
             # Caso nao haja nenhum estado correspondente
+            self.current_state == 'q0'
             
             
     
@@ -75,7 +87,7 @@ def getProgramFile(fileInput):
 # Define uma função main que é chamada no começo do programa
 def main():
     args = sys.argv
-    input_string = getProgramFile(args[1])
+    input_string = getProgramFile("\inputs\input_AFD.pas")
 
     automaton = FiniteAutomaton() # Construtor do automato
 
