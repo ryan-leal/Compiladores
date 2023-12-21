@@ -1,6 +1,6 @@
 program teste;
-var
+var{
 	teste1:=10;
-begin
+begin}
 
 end.
