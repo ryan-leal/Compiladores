@@ -1,7 +1,7 @@
 program teste; {programa exemplo}
-var 
-	valor1: integer;
-	valor2: real;
+{var 
+	valor1, valor3, valor4: integer;
+	valor2: real;}
 begin % @
 	valor1 := 10;
 	{valor5 := 10.2;

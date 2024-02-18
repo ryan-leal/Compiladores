@@ -1,5 +1,4 @@
 import re # Used in regex functions
-import sys # Used to argv
 from tabulate import tabulate # Create tables
 
 # Function to print error messages
@@ -86,16 +85,4 @@ def lexer(fileInput):
     dataInput = getProgramFile(fileInput) # open input file
     tokens = match(dataInput) # Get tokens from main lexer function
     printTable(tokens) # Print token table
-
-
-def main():
-    args = sys.argv
-    lexer(args[1]) # call the lexical analyzer with path to pascal file
-
-#    if re.search(r'[\s\S]+(\.pas)', args[1]) :
-#       Only pascal files...        
-#    else:
-#        print('Only .pas files allowed')
-
-if __name__ == "__main__":
-    main()
+    return tokens
