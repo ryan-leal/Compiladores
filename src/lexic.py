@@ -85,4 +85,4 @@ def lexer(fileInput):
     dataInput = getProgramFile(fileInput) # open input file
     tokens = match(dataInput) # Get tokens from main lexer function
     printTable(tokens) # Print token table
-    return tokens
+    return tokens # Return tokens to use in syntactic
