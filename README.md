@@ -7,7 +7,7 @@ Ryan Matheus da Silva Leal
 
 Para executar, basta abrir o terminal na pasta src, executar o arquivo .py passando como parametro o arquivo de texto a ser analisado
 
-python grammar.py ..\inputs\input_Pascal01.pas
+python main.py ..\inputs\input_Pascal01.pas
 
 e
 
