@@ -21,7 +21,7 @@ def build_regex():
         ('RELATIONAL_OPERATOR', r'(<=|>=|<>|>|<|=)'),
         ('ADDITIVE_OPERATOR', r'(\+|-|\bor\b)'),
         ('MULTIPLICATION_OPERATOR', r'(\*|/|\band\b)'),
-        ('IDENTIFIER', r'\b[a-z][a-zA-Z0-9_]*\b'),
+        ('IDENTIFIER', r'\b[a-zA-Z][a-zA-Z0-9_]*\b'),
         ('DELIMITER', r'[;.:\(\),]'),
         ('ERROR_INVALID_TOKEN',r'[^A-Za-z0-9=<>:;_\+\-\*\/{}\t\s.]')
     ]

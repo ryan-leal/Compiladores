@@ -74,15 +74,14 @@ def subProgramDeclaration():
                 if token[0] == '(':
                     print('open parenthesis')
                     token = analyzer.next()                      
-                if token[0] == ';':
+                elif token[0] == ';':
                     print('Nao tinha parentesis mas tinha ponto e virgula')
                     token = analyzer.next()
                 else:
                     print('ERROR: EXPECTED \'(\' OR \';\' BUT ' + token[0] + ' FOUND')
                     sys.exit()
-                print('ERROR: EXPECTED \'(\' BUT ' + token[0] + ' FOUND')
             else:
-                print('ERROR: IDENTIFIER EXPECTED IN LINE ' + token[2])
+                print('ERROR: EXPECTED IDENTIFIER BUT ' + token[1] + ' IN LINE ' + token[2])
                 sys.exit()
     else:
         print('procedure dont found but ' + token[0])
@@ -112,11 +111,11 @@ def synAnalysis(tokenList):
             else:
                 print('ERROR: EXPECTED \';\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
             if token[0] != '.':
-                print('Erro, programa nao termina em ponto')
+                print('ERROR: EXPECTED \'.\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
             else:
-                print('Aceito!')
+                print('PASCAL PROGRAM ACCEPTED')
         else:
-            print('ERROR: EXPECTED IDENTIFIER BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
+            print('ERROR: EXPECTED IDENTIFIER BUT ' + token[1] + ' FOUND IN LINE ' + token[2])
     else:
         print('ERROR: EXPECTED \'program\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])            
         
