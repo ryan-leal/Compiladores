@@ -37,16 +37,16 @@ def listIdentifier():
                     print('Var Declared, next token ' + token[0])
                     return token
                 else:
-                    print('ERROR: DELIMITER \';\' EXPECTED IN LINE ' + token[2])
+                    print('ERROR: DELIMITER \';\' EXPECTED BUT FOUND' + token[0] + 'IN LINE ' + token[2])
                     sys.exit()
             else:
-                print('ERROR: DATA TYPE EXPECTED IN LINE ' + token[2])
+                print('ERROR: DATA TYPE EXPECTED BUT FOUND' + token[0] + 'IN LINE ' + token[2])
                 sys.exit()
         else:
-            print('ERROR: DELIMITER \':\' EXPECTED IN LINE ' + token[2])
+            print('ERROR: DELIMITER \':\' EXPECTED BUT FOUND' + token[0] + 'IN LINE ' + token[2])
             sys.exit()
     else:
-        print('ERROR: IDENTIFIER EXPECTED IN LINE ' + token[2])
+        print('ERROR: IDENTIFIER EXPECTED BUT FOUND' + token[0] + 'IN LINE ' + token[2])
         sys.exit()
 
 def varDeclaration():
