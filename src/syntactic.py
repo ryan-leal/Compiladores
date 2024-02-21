@@ -14,7 +14,7 @@ class tokenAnalyzer:
         else:
             return None  # Retorna None se não houver mais tokens
 
-def listIdentifier():
+def listIdentifier(isArgs = 0):
     global analyzer, token 
     if token[1] == 'IDENTIFIER':
         print('Token before next in listIdentifier: ' + token[0])
@@ -35,9 +35,12 @@ def listIdentifier():
                     print('Var Declared')
                     token = analyzer.next()
                     print('Var Declared, next token ' + token[0])
-                    return token
+                    return
                 else:
-                    print('ERROR: DELIMITER \';\' EXPECTED BUT FOUND' + token[0] + 'IN LINE ' + token[2])
+                    if isArgs == 1:
+                        print('eh um args entao tranquilo')
+                        return
+                    print('ERROR: DELIMITER \';\' EXPECTED IN LINE ' + token[2])
                     sys.exit()
             else:
                 print('ERROR: DATA TYPE EXPECTED BUT FOUND' + token[0] + 'IN LINE ' + token[2])
@@ -73,7 +76,23 @@ def subProgramDeclaration():
                 token = analyzer.next()
                 if token[0] == '(':
                     print('open parenthesis')
-                    token = analyzer.next()                      
+                    token = analyzer.next()
+                    while token[0] != ')':
+                        listIdentifier(1)
+                    if token[0] == ')':
+                        token = analyzer.next()
+                        if token[0] == ';':
+                            token = analyzer.next()
+                            varDeclaration()
+                            subProgramDeclaration()
+                            compostCommand()
+                            return
+                        else:
+                            print('ERROR: EXPECTED \';\' BUT ' + token[0] + ' FOUND')
+                            sys.exit()
+                    else:
+                        print('ERROR: EXPECTED \')\' BUT ' + token[0] + ' FOUND')
+                        sys.exit()                      
                 elif token[0] == ';':
                     print('Nao tinha parentesis mas tinha ponto e virgula')
                     token = analyzer.next()
