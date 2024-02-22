@@ -88,7 +88,17 @@ def subProgramDeclaration():
 
 
 def compostCommand():
-    print('No comando Composto')
+    if token[0] == 'begin':
+        print('I found begin')
+    elif token[0] == 'end':
+        print('I found end')
+    else:
+        print('Comandos especiais')
+        optionalCommand()
+        sys.exit()
+
+def optionalCommand():
+    print('Eu sou um comando opcional')
 
 def synAnalysis(tokenList):
     # Instance of tokenAnalyzer to return next token using token list from lexer
