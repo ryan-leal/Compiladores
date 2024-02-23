@@ -105,19 +105,126 @@ def subProgramDeclaration():
     else:
         print('procedure dont found but ' + token[0])
 
-
-def compostCommand():
-    if token[0] == 'begin':
-        print('I found begin')
-    elif token[0] == 'end':
-        print('I found end')
+def opRelacional():
+    global analyzer, token
+    if token[0] == '=':
+        print('I found =')
+        token = analyzer.next()
+        if token[0] == '<':
+            print('I found <')
+            token = analyzer.next()
+            if token[0] == '>':
+                print('I found >')
+                token = analyzer.next()
+                if token[0] == '<=':
+                    print('I found <=')
+                    token = analyzer.next()
+                    if token[0] == '>=':
+                        print('I found >=')
+                        token = analyzer.next()
+                        if token[0] == '<>':
+                            print('I found <=')
+                            token = analyzer.next()
+                        else:
+                            print('ERROR: EXPECTED <> BUT ' + token[0] + ' IN LINE ' + token[2])
+                            sys.exit()
+                    else:
+                        print('ERROR: EXPECTED >= BUT ' + token[0] + ' IN LINE ' + token[2])
+                        sys.exit()
+                else:
+                    print('ERROR: EXPECTED <= BUT ' + token[0] + ' IN LINE ' + token[2])
+                sys.exit()
+            else:
+                print('ERROR: EXPECTED > BUT ' + token[0] + ' IN LINE ' + token[2])
+                sys.exit()
+        else:
+            print('ERROR: EXPECTED < BUT ' + token[0] + ' IN LINE ' + token[2])
+            sys.exit()
     else:
-        print('Comandos especiais')
-        optionalCommand()
+        print('ERROR: EXPECTED = BUT ' + token[0] + ' IN LINE ' + token[2])
+        sys.exit()    
+
+def opAditivo():
+    global analyzer, token
+    if token[0] == '+':
+        print('I found +')
+        token = analyzer.next()
+        if token[0] == '-':
+            print('I found -')
+            token = analyzer.next()
+            if token[0] == 'or':
+                print('I found or')
+                token = analyzer.next()
+            else:
+                print('ERROR: EXPECTED OR BUT ' + token[0] + ' IN LINE ' + token[2])
+                sys.exit()
+        else:
+            print('ERROR: EXPECTED - BUT ' + token[0] + ' IN LINE ' + token[2])
+            sys.exit()
+    else:
+        print('ERROR: EXPECTED + BUT ' + token[0] + ' IN LINE ' + token[2])
         sys.exit()
+
+def opMultiplicativo():
+    global analyzer, token
+    if token[0] == '*':
+        print('I found *')
+        token = analyzer.next()
+        if token[0] == '/':
+            print('I found /')
+            token = analyzer.next()
+            if token[0] == 'and':
+                print('I found /')
+                token = analyzer.next()
+            else:
+                print('ERROR: EXPECTED AND BUT ' + token[0] + ' IN LINE ' + token[2])
+                sys.exit()
+        else:
+            print('ERROR: EXPECTED / BUT ' + token[0] + ' IN LINE ' + token[2])
+            sys.exit()
+    else:
+        print('ERROR: EXPECTED * BUT ' + token[0] + ' IN LINE ' + token[2])
+        sys.exit()
+
+def comando():
+    global analyzer, token
+    if token[1]=='IDENTIFIER':
+        print('I found a identifier')
+        tokenAnalyzer.next()
+        if token[1]=='ASSIGNMENT':# caso encontre := apos var
+            print('I found a assignment')
+            tokenAnalyzer.next()
+            if: #if pra checar se é uma expressão, taovez
+        else:
+            print('ERROR: EXPECTED ASSIGNMENT BUT ' + token[1] + ' IN LINE ' + token[2])
+            sys.exit()
+    else:
+        print('ERROR: EXPECTED IDENTIFIER BUT ' + token[1] + ' IN LINE ' + token[2])
+        sys.exit()
+        
+def listaComando():
+    global analyzer, token
+    comando()
 
 def optionalCommand():
     print('Eu sou um comando opcional')
+    listaComando()
+
+def compostCommand():
+    global analyzer, token
+    if token[0] == 'begin':
+        print('I found begin')
+        token = analyzer.next()
+        optionalCommand()
+        if token[0] == 'end':
+            print('I found end')
+            token = analyzer.next()
+        else:
+            print('ERROR: EXPECTED END BUT ' + token[0] + ' IN LINE ' + token[2])
+            sys.exit()
+    else:
+        print('ERROR: EXPECTED BEGIN BUT ' + token[0] + ' IN LINE ' + token[2])
+        sys.exit()
 
 def synAnalysis(tokenList):
     # Instance of tokenAnalyzer to return next token using token list from lexer
@@ -146,5 +253,5 @@ def synAnalysis(tokenList):
         else:
             print('ERROR: EXPECTED IDENTIFIER BUT ' + token[1] + ' FOUND IN LINE ' + token[2])
     else:
-        print('ERROR: EXPECTED \'program\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])            
-        
+        print('ERROR: EXPECTED \'program\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
+    
