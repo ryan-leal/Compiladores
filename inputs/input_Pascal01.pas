@@ -9,10 +9,11 @@ var
 begin
 	myVar1 := 10;
 	myVar2 := myVar1 + 2;
-	myVar3 := true;
+	myVar3 := true
 end
 begin % @
 	valor1 := 10;
+	myProcedure();
 	{valor5 := 10.2;
 	valor3 := .234;
 	valor9 := 12.;
@@ -20,9 +21,18 @@ begin % @
 	valor2 < valor3;
 	valor1 = valor2;
 	valor3 <> valor1;}
-	valor3 <> # valor1;
+	if (valor1 >= 20) and (valor1 <=90) then
+      valor1 := 10 * 3   
+    else valor1 := 10 / 3
+	{valor3 <> # valor1;
 	valor2 or $ valor1;
-	valor3 and valor2;
-	valor1 + valor2;
-	valor3 / valor1;
-end. 
+	valor3 and valor2;}
+	while (valor1 <= 5) do
+    begin
+      valor2 := valor1+1;
+      valor1 := valor2-1;
+      valor1 := valor1 + valor2;
+      valor1 := valor1 + 1
+    end
+	valor1 := valor1 + valor2
+end.

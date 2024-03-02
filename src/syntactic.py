@@ -87,7 +87,7 @@ def subProgramDeclaration():
                             token = analyzer.next()
                             varDeclaration()
                             subProgramDeclaration()
-                            compostCommand()
+                            compoundCommand()
                             return
                         else:
                             if token[0] == 'end':
@@ -110,88 +110,177 @@ def subProgramDeclaration():
     else:
         print('procedure dont found but ' + token[0])
 
+def isFactor():
+    global token, analyzer
+    if token[1] == 'IDENTIFIER':
+        print('Fator identificador encontrado: ' + token[0])
+        token = analyzer.next()
+        if token[0] == '(':
+            token = analyzer.next()
+            print('era Fator identificador mas tinha parenteses...')
+            expressionList()
+            token = analyzer.next()
+            if token[0] == ')':
+                token = analyzer.next()
+                print('Fator identificador com parenteses SUCESS')
+                return True
+            else:
+                print('ERROR: EXPECTED \')\' BUT FOUND ' + token[0] + ' IN LINE ' + token[2])
+                sys.exit()
+        return True
+    elif token[1] == 'INTEGER':
+        print('Fator inteiro encontrado: ' + token[0])
+        token = analyzer.next()
+        return True
+    elif token[1] == 'REAL':
+        print('Fator real encontrado: ' + token[0])
+        token = analyzer.next()
+        return True
+    elif token[1] == 'BOOLEAN':
+        print('Fator Boolean encontrado: ' + token[0])
+        token = analyzer.next()
+        return True
+    elif token[0] == 'not':
+        print('Fator not encontrado: ' + token[0])
+        token = analyzer.next()
+        if isFactor():
+            return True
+        else:
+            print('ERROR: EXPECTED \'A FACTOR IN NOT\' BUT FOUND ' + token[0] + ' IN LINE ' + token[2])
+            sys.exit()  
+    elif token[0] == '(':
+        print('Fator Parenteses encontrado: ' + token[0])
+        token = analyzer.next()
+        expressionAnalyzer()
+        if token[0] == ')':
+            token = analyzer.next()
+            print('Expressao entre parenteses SUCESS...')
+            return True
+        else:
+            print('ERROR: EXPECTED \')\' BUT FOUND ' + token[0] + ' IN LINE ' + token[2])
+            sys.exit()
+
+def isTerm():
+    global token, analyzer
+    isFactor()
+    if token[1] == 'MULTIPLICATION_OPERATOR':
+        print('Operador multiplicativo encontrado: ' + token[0])
+        token = analyzer.next()
+        isTerm()
+    return True       
+
+def expressionSimple():
+    global token, analyzer
+    print('expressionSimple: ' + token[0])
+    if token[0] == '+' or token[0] == '-':
+        token = analyzer.next()
+    isTerm()
+    if token[1] == 'ADDITIVE_OPERATOR':
+        print('Operador aditivo encontrado: ' + token[0])
+        token = analyzer.next()
+        expressionSimple()
+
 def expressionAnalyzer():
     global token, analyzer
-    print('Analysis: ' + token[0])
-    token = analyzer.next()
+    print('expressionAnalyzer: ' + token[0])
+    expressionSimple()
+    if token[1] == 'RELATIONAL_OPERATOR':
+        print('Operador relacional encontrado: ' + token[0])
+        token = analyzer.next()
+        expressionSimple()
 
-def commandList():
+def expressionList():
     global token, analyzer
-    print('Em command List com token: ' + token[0])
+    print('ExpressionList: ' + token[0])
+    expressionAnalyzer()
+    if token[0] == ',':
+        print('virgula encontrada: ' + token[0])
+        token = analyzer.next()
+        expressionList()
+
+def commands():
+    global token, analyzer
+    print('Em commands com token: ' + token[0])
     if token[1] == 'IDENTIFIER':
         print('identifier Found, token: ' + token[0])
         token = analyzer.next()
         if token[0] == ':=':
             print('I found :=, so its a attribuition')
             token = analyzer.next()
-            while not(token[0] == 'end' or token[0] == ';' or token[0] == 'else'):
-                expressionAnalyzer()
-            if token[0]== ';':
-                print('expression analyzes')
-                token = analyzer.next()
-                return
-            elif token[0] == 'end':
-                print('expression analyzes and end found')
-                return
+            expressionAnalyzer()
+            print('Attribution found in line ' + token[2])
+            return
         elif token[0] == '(':
             print('its a procedure call using ()')
             token = analyzer.next()
-            while token[0] != ')':
-                listIdentifier(1)
+            expressionList()
             if token[0] == ')':
                 token = analyzer.next()
                 if token[0] == ';':
-                    print('Procedure call found')
+                    print('Procedure call found in line ' + token[2])
                     token = analyzer.next()
                     return
                 else:
-                    if token[0] == 'end':
-                        print('Procedure call found')
-                        return
-                    print('ERROR: EXPECTED \';\' BUT ' + token[0] + ' FOUND')
+                    print('ERROR: EXPECTED \';\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
                     sys.exit()
+            else:
+                print('ERROR: EXPECTED \')\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
+                sys.exit()
         elif token[0] == ';':
-            print('its a procedure call')
+            print('its a procedure call in line ' + token[2])
             token = analyzer.next()
             return
         else:
-            print('ERROR: EXPECTED \':=\' OR \';\' OR \'();\'')
+            print('ERROR: EXPECTED \':=\' OR \';\' OR \'();\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
     else:
         if token[1] == 'RESERVED_WORD':
             print('Reserved Word Found, token: ' + token[0])
             if token[0] == 'begin':
                 print('begin found inside begin')
-                compostCommand()
+                compoundCommand()
             elif token[0] == 'if':
                 print('i found if command')
                 token = analyzer.next()
-                while token[0] != 'then':
-                    expressionAnalyzer()
+                expressionAnalyzer()
                 if token[0] == 'then':
                     print('i found then')
                     token = analyzer.next()
-                    while token[0] != 'else':
-                        commandList()
+                    commands()
                     if token[0] == 'else':
                         print('received else')
                         token = analyzer.next()
                         commandList()
+                        return
                     else:
                         print('No else statement found')
+                        return
+                else:
+                    print('ERROR: EXPECTED \'then\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
+                    sys.exit()
             elif token[0] == 'while':
                 print('Found while command')
                 token = analyzer.next()
-                while token[0] != 'do':
-                    expressionAnalyzer()
+                expressionAnalyzer()
                 if token[0] == 'do':
                     print('Do found')
                     token = analyzer.next()
                     commandList()
+                    return
+                else:
+                    print('ERROR: EXPECTED \'do\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
+                    sys.exit()  
         else:
             print('Options dont matched, error with token: ' + token[0])
             sys.exit()
 
-def compostCommand():
+def commandList():
+    global token, analyzer
+    commands()
+    if token[0] == ';':
+        token = analyzer.next()
+        commandList()
+
+def compoundCommand():
     global token, analyzer
     if token[0] == 'begin':
         print('found begin')
@@ -228,7 +317,7 @@ def synAnalysis(tokenList):
                 token = analyzer.next()
                 varDeclaration()
                 subProgramDeclaration()
-                compostCommand()
+                compoundCommand()
             else:
                 print('ERROR: EXPECTED \';\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
             if token[0] != '.':
