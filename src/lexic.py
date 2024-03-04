@@ -15,6 +15,7 @@ def build_regex():
         ('COMMENT', r'{[\S\s]*?}'),
         ('OPENNED_COMMENT', r'{[\S\s]*[^}]'),
         ('RESERVED_WORD', r'\b(program|var|integer|real|boolean|procedure|begin|end|if|then|else|while|do|not)\b'),
+        ('BOOLEAN', r'\b(true|false)\b'),
         ('REAL', r'\b\d+\.\d*'),
         ('INTEGER', r'\b\d+\b'),
         ('ASSIGNMENT', r':='),
