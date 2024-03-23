@@ -17,12 +17,12 @@ def build_regex():
         ('RESERVED_WORD', r'\b(program|var|integer|real|boolean|procedure|begin|end|if|then|else|while|do|not)\b'),
         ('BOOLEAN', r'\b(true|false)\b'),
         ('REAL', r'\b\d+\.\d*'),
-        ('INTEGER', r'\b\d+\b'),
+        ('INTEGER', r'\b\d+'),
         ('ASSIGNMENT', r':='),
         ('RELATIONAL_OPERATOR', r'(<=|>=|<>|>|<|=)'),
         ('ADDITIVE_OPERATOR', r'(\+|-|\bor\b)'),
         ('MULTIPLICATION_OPERATOR', r'(\*|/|\band\b)'),
-        ('IDENTIFIER', r'\b[a-zA-Z][a-zA-Z0-9_]*\b'),
+        ('IDENTIFIER', r'[a-zA-Z][a-zA-Z0-9_]*\b'),
         ('DELIMITER', r'[;.:\(\),]'),
         ('ERROR_INVALID_TOKEN',r'[^A-Za-z0-9=<>:;_\+\-\*\/{}\t\s.]')
     ]
