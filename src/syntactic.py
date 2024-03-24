@@ -14,32 +14,81 @@ class tokenAnalyzer:
         else:
             return None  # Retorna None se não houver mais tokens
 
+########## SEMANTIC FUNCTIONS ################
+    
+def findInStack(var):
+    global symbolStack
+    for values in symbolStack:
+        if values[0] == var:
+            print(var + ' found in stack, can be used')
+            return
+    print('ERROR: TRYING TO USE UNDECLEARED VAR NAMED ' + var)
+    sys.exit()
+
+def cleanStack():
+    global symbolStack
+    print('=====Before Clean Stack Scope=========')
+    print(symbolStack)
+    while symbolStack[-1] != ('mark', None):
+        symbolStack.pop()
+    symbolStack.pop()
+    print('=====After Clean Stack Scope=========')
+    print(symbolStack)
+
+def isInStack(var):
+    global identifierStack, symbolStack
+    for x in symbolStack[::-1]:
+        if x == ('mark', None):
+            print(var + ' NOT FOUNDED IN SCOPE, CAN BE DECLARED')
+            break
+        if var in x:
+            print('ERROR: TRYING TO DECLARE ' + var + ' BUT IS ALREADY DECLARED IN SCOPE')
+            sys.exit()
+
+def stackAppend(typeStack):
+    global identifierStack, symbolStack
+    for vars in identifierStack:
+        isInStack(vars)
+        symbolStack.append((vars, typeStack))
+    identifierStack = []
+
+###################################################
+
 def listIdentifier(isArgs = 0):
-    global analyzer, token
+    global analyzer, token, symbolStack, identifierStack
     if isArgs == 1 and token[0] == ')':
         return 
     if token[1] == 'IDENTIFIER':
         print('Identifier found in args/var: ' + token[0])
+        # Adding identifier to a stack of identifiers, after will be used to add in SymbolStack
+        identifierStack.append(token[0])
+        print(identifierStack)
         token = analyzer.next()
         print('Next token: ' + token[0])
         if token[0] == ',':
             print('Found \',\' in declaration, identifier expected next')
             token = analyzer.next()
-            listIdentifier()
+            if isArgs == 1:
+                listIdentifier(isArgs=1)
+            else:
+                listIdentifier()
             return                      
         if token[0] == ':':
             token = analyzer.next()
             if token[0] == 'integer' or token[0] == 'real' or token[0] == 'boolean':
                 print('Data Type found: ' + token[0])
+                typeStack = token[0]
                 token = analyzer.next()
                 print('Next token should be \';\' or \')\': ' + token[0])
                 if token[0] == ';':
                     token = analyzer.next()
                     print('VAR DECLARED, next token: ' + token[0])
+                    stackAppend(typeStack)
                     return
                 else:
                     if isArgs == 1 and token[0] == ')':
                         print('Its the last argument, dont need ;')
+                        stackAppend(typeStack)
                         return
                     elif isArgs == 1:
                         print('ERROR: EXPECTED \')\' OR \';\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
@@ -72,10 +121,12 @@ def varDeclaration():
         print('\'var\' not found, but ' + token[0])
 
 def subProgramDeclaration():
-    global analyzer, token 
+    global analyzer, token, symbolStack
     if token[0] == 'procedure':
             print('I found \'procedure\'')
             token = analyzer.next()
+            symbolStack.append((token[0], None))
+            symbolStack.append(('mark', None))
             if token[1] == 'IDENTIFIER':
                 token = analyzer.next()
                 if token[0] == '(':
@@ -89,6 +140,7 @@ def subProgramDeclaration():
                             varDeclaration()
                             subProgramDeclaration()
                             compoundCommand()
+                            cleanStack()
                             return
                         else:
                             if token[0] == 'end':
@@ -115,6 +167,7 @@ def isFactor():
     global token, analyzer
     if token[1] == 'IDENTIFIER':
         print('Identifier Factor found: ' + token[0])
+        findInStack(token[0])
         token = analyzer.next()
         if token[0] == '(':
             token = analyzer.next()
@@ -201,6 +254,7 @@ def commands():
     print('Em commands com token: ' + token[0])
     if token[1] == 'IDENTIFIER':
         print('identifier Found, token: ' + token[0])
+        findInStack(token[0])
         token = analyzer.next()
         if token[0] == ':=':
             print('I found :=, so its a attribuition')
@@ -299,6 +353,9 @@ def compoundCommand():
         sys.exit()
 
 def synAnalysis(tokenList):
+    global symbolStack, identifierStack
+    symbolStack = [('mark', None)]
+    identifierStack = []
     # Instance of tokenAnalyzer to return next token using token list from lexer
     global analyzer, token 
     analyzer = tokenAnalyzer(tokenList)
@@ -316,6 +373,7 @@ def synAnalysis(tokenList):
                 varDeclaration()
                 subProgramDeclaration()
                 compoundCommand()
+                cleanStack()
             else:
                 print('ERROR: EXPECTED \';\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
             if token[0] != '.':

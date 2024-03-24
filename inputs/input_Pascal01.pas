@@ -2,12 +2,22 @@ program teste; {programa exemplo}
 var 
 	valor1, valor3, valor4: integer;
 	valor2: real;
-procedure myProcedure(argum1, argum2: integer; argum3: real);
+procedure myProcedure(argum1, argum2: integer; argum3, argum5: real);
 var
 	myVar1, myVar2: integer;
 	myVar3: boolean;
+procedure myProcedure(argum5, argum6: integer; argum7, argum8: real);
+var
+	myVar6, myVar7: integer;
+	myVar8: boolean;
+	myVar9, myVar1: integer;
 begin
-	myVar1 := 10;
+	{myVar6 := 10 + 5 * ( a+4+a+4 /4);}
+	myVar7 := myVar6 + 2;
+	myVar8 := true
+end
+begin
+	{myVar1 := 10 + 5 * ( a+4+a+4 /4);}
 	myVar2 := myVar1 + 2;
 	myVar3 := true
 end
@@ -34,5 +44,6 @@ begin % @
       valor1 := valor1 + valor2;
       valor1 := valor1 + 1
     end
+	valor9 := valor1 + 1;
 	valor1 := valor1 + valor2
 end.
