@@ -367,6 +367,7 @@ def synAnalysis(tokenList):
     if token[0] == 'program':
         token = analyzer.next()
         if token[1] == 'IDENTIFIER':
+            symbolStack.append((token[0], 'None'))
             token = analyzer.next()
             if token[0] == ';':
                 token = analyzer.next()
