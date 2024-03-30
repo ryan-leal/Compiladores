@@ -18,10 +18,13 @@ class tokenAnalyzer:
     
 def findInStack(var):
     global symbolStack
+    if var == symbolStack[1][0]:
+        print('ERROR: TRYING TO USE PROGAM NAME ' + var)
+        sys.exit()
     for values in symbolStack:
         if values[0] == var:
             print(var + ' found in stack, can be used')
-            return
+            return values[1]
     print('ERROR: TRYING TO USE UNDECLEARED VAR NAMED ' + var)
     sys.exit()
 
@@ -37,6 +40,9 @@ def cleanStack():
 
 def isInStack(var):
     global identifierStack, symbolStack
+    if var == symbolStack[1][0]:
+        print('ERROR: TRYING TO DECLARE ' + var + ' BUT IT\'S THE PROGRAM NAME')
+        sys.exit()
     for x in symbolStack[::-1]:
         if x == ('mark', None):
             print(var + ' NOT FOUNDED IN SCOPE, CAN BE DECLARED')
@@ -51,6 +57,90 @@ def stackAppend(typeStack):
         isInStack(vars)
         symbolStack.append((vars, typeStack))
     identifierStack = []
+
+def updateTypeStack(resultType):
+    global typeControlStack
+    typeControlStack.pop()
+    typeControlStack.pop()
+    typeControlStack.append(resultType)
+
+def typeStackChecker(isRel = 0, isBoolOp = 0):
+    global typeControlStack
+    if isBoolOp:
+        if typeControlStack[-1] == 'boolean' and typeControlStack[-2] == 'boolean':
+            print('Boolean Operation beetween two booleans - OK')
+            updateTypeStack('boolean')
+            print(typeControlStack)
+        else:
+            print('ERROR: TRYING TO MAKE A BOOLEAN OPERATION BETWEEN ' + typeControlStack[-1] +' AND ' + typeControlStack[-2])
+            sys.exit()
+    else:
+        if typeControlStack[-1] == 'integer' and typeControlStack[-2] == 'integer':
+            print('Operation between integer and integer - OK')
+            if isRel:
+                updateTypeStack('boolean')
+                print('Relational Operation - boolean output')
+            else:
+                updateTypeStack('integer')
+        elif (typeControlStack[-1] == 'integer' and typeControlStack[-2] == 'real') or (typeControlStack[-1] == 'real' and typeControlStack[-2] == 'integer'):
+            print('Operation between integer and real - OK')
+            if isRel:
+                updateTypeStack('boolean')
+                print('Relational Operation - boolean output')
+            else:
+                updateTypeStack('real')
+        elif typeControlStack[-1] == 'real' and typeControlStack[-2] == 'real':
+            print('Operation between real and real - OK')
+            if isRel:
+                updateTypeStack('boolean')
+                print('Relational Operation - boolean output')
+            else:
+                updateTypeStack('real')
+        else:
+            print('ERROR: TRYING TO MAKE A OPERATION BETWEEN ' + typeControlStack[-1] +' AND ' + typeControlStack[-2])
+            sys.exit()
+    
+def assignStackChecker():
+    global typeControlStack
+    if typeControlStack[-1] == 'integer' and typeControlStack[-2] == 'integer':
+        print('Assignment between integer and integer - OK')
+        typeControlStack = []
+        print(typeControlStack)
+    elif typeControlStack[-1] == 'integer' and typeControlStack[-2] == 'real':
+        print('Assignment between integer and real - OK')
+        typeControlStack = []
+        print(typeControlStack)
+    elif typeControlStack[-1] == 'real' and typeControlStack[-2] == 'real':
+        print('Assignment between real and real - OK')
+        typeControlStack = []
+        print(typeControlStack)
+    elif typeControlStack[-1] == 'boolean' and typeControlStack[-2] == 'boolean':
+        print('Assignment between boolean and boolean - OK')
+        typeControlStack = []
+        print(typeControlStack)
+    else:
+        print('ERROR: TRYING TO ASSIGN A ' + typeControlStack[-1] +' IN A ' + typeControlStack[-2] + ' VAR')
+        sys.exit()
+
+def verifyBooleanResult():
+    global typeControlStack
+    print('Verifying if a Boolean value is resulted after IF / WHILE Expression Analysis...')
+    if typeControlStack[-1] == 'boolean':
+        print('Boolean Value at the top of typeControlStack - OK')
+        print(typeControlStack)
+        typeControlStack.pop()
+        print('Stack Top Cleaned...')
+        print(typeControlStack)
+    else:
+        print(typeControlStack)
+        print('ERROR: AFTER IF / WHILE STATEMENT, TOP MUST BE AN BOOLEAN')
+        sys.exit()
+
+def clearTopTypeStack():
+    global typeControlStack
+    typeControlStack.pop()
+    print('Cleaning top of TypeControlStack...')
+    print(typeControlStack)
 
 ###################################################
 
@@ -82,8 +172,8 @@ def listIdentifier(isArgs = 0):
                 print('Next token should be \';\' or \')\': ' + token[0])
                 if token[0] == ';':
                     token = analyzer.next()
-                    print('VAR DECLARED, next token: ' + token[0])
                     stackAppend(typeStack)
+                    print('VAR DECLARED, next token: ' + token[0])
                     return
                 else:
                     if isArgs == 1 and token[0] == ')':
@@ -120,12 +210,17 @@ def varDeclaration():
     else:
         print('\'var\' not found, but ' + token[0])
 
+def subProgramDeclarations():
+    global analyzer, token
+    while(token[0] != 'begin'):
+        subProgramDeclaration()
+
 def subProgramDeclaration():
     global analyzer, token, symbolStack
     if token[0] == 'procedure':
             print('I found \'procedure\'')
             token = analyzer.next()
-            symbolStack.append((token[0], None))
+            symbolStack.append((token[0], 'procedure'))
             symbolStack.append(('mark', None))
             if token[1] == 'IDENTIFIER':
                 token = analyzer.next()
@@ -138,7 +233,7 @@ def subProgramDeclaration():
                         if token[0] == ';':
                             token = analyzer.next()
                             varDeclaration()
-                            subProgramDeclaration()
+                            subProgramDeclarations()
                             compoundCommand()
                             cleanStack()
                             return
@@ -154,6 +249,11 @@ def subProgramDeclaration():
                 elif token[0] == ';':
                     print('No parenthesis found, but \';\'')
                     token = analyzer.next()
+                    varDeclaration()
+                    subProgramDeclaration()
+                    compoundCommand()
+                    cleanStack()
+                    return
                 else:
                     print('ERROR: EXPECTED \'(\' OR \';\' BUT ' + token[0] + ' FOUND IN LINE ' + token[2])
                     sys.exit()
@@ -164,10 +264,11 @@ def subProgramDeclaration():
         print('procedure dont found but ' + token[0])
 
 def isFactor():
-    global token, analyzer
+    global token, analyzer, typeControlStack
     if token[1] == 'IDENTIFIER':
         print('Identifier Factor found: ' + token[0])
-        findInStack(token[0])
+        typeControlStack.append(findInStack(token[0]))
+        print(typeControlStack)
         token = analyzer.next()
         if token[0] == '(':
             token = analyzer.next()
@@ -177,6 +278,7 @@ def isFactor():
             if token[0] == ')':
                 token = analyzer.next()
                 print('Identifier Factor - Parenthesis FINISH -')
+                typeControlStack.pop()
                 return True
             else:
                 print('ERROR: EXPECTED \')\' BUT FOUND ' + token[0] + ' IN LINE ' + token[2])
@@ -184,14 +286,20 @@ def isFactor():
         return True
     elif token[1] == 'INTEGER':
         print('Integer Factor found: ' + token[0])
+        typeControlStack.append('integer')
+        print(typeControlStack)
         token = analyzer.next()
         return True
     elif token[1] == 'REAL':
         print('Real Factor Found: ' + token[0])
+        typeControlStack.append('real')
+        print(typeControlStack)
         token = analyzer.next()
         return True
     elif token[1] == 'BOOLEAN':
         print('Boolean Factor Found: ' + token[0])
+        typeControlStack.append('boolean')
+        print(typeControlStack)
         token = analyzer.next()
         return True
     elif token[0] == 'not':
@@ -219,8 +327,13 @@ def isTerm():
     isFactor()
     if token[1] == 'MULTIPLICATION_OPERATOR':
         print('Multiplication Operator Found in TermChecker: ' + token[0])
+        if token[0] == 'and':
+            isBoolOp = 1
+        else:
+            isBoolOp = 0
         token = analyzer.next()
         isTerm()
+        typeStackChecker(isBoolOp=isBoolOp)
     return True       
 
 def expressionSimple():
@@ -230,8 +343,13 @@ def expressionSimple():
     isTerm()
     if token[1] == 'ADDITIVE_OPERATOR':
         print('Additive Operator found in SimpleExp: ' + token[0])
+        if token[0] == 'or':
+            isBoolOp = 1
+        else:
+            isBoolOp = 0
         token = analyzer.next()
         expressionSimple()
+        typeStackChecker(isBoolOp=isBoolOp)
 
 def expressionAnalyzer():
     global token, analyzer
@@ -240,6 +358,7 @@ def expressionAnalyzer():
         print('Relational Operator found in expAnalyzer: ' + token[0])
         token = analyzer.next()
         expressionSimple()
+        typeStackChecker(isRel=1)
 
 def expressionList():
     global token, analyzer
@@ -250,26 +369,31 @@ def expressionList():
         expressionList()
 
 def commands():
-    global token, analyzer
-    print('Em commands com token: ' + token[0])
+    global token, analyzer, typeControlStack
+    print('Inside Commands with token: ' + token[0])
     if token[1] == 'IDENTIFIER':
         print('identifier Found, token: ' + token[0])
-        findInStack(token[0])
+        typeControlStack.append(findInStack(token[0]))
+        print(typeControlStack)
         token = analyzer.next()
         if token[0] == ':=':
             print('I found :=, so its a attribuition')
             token = analyzer.next()
             expressionAnalyzer()
+            print(typeControlStack)
+            assignStackChecker()
             print('Attribution found in line ' + token[2])
             return
         elif token[0] == '(':
             print('its a procedure call using ()')
+            clearTopTypeStack()
             token = analyzer.next()
             expressionList()
             if token[0] == ')':
                 token = analyzer.next()
                 if token[0] == ';':
                     print('Procedure call found in line ' + token[2])
+                    clearTopTypeStack()
                     token = analyzer.next()
                     return
                 else:
@@ -280,6 +404,7 @@ def commands():
                 sys.exit()
         elif token[0] == ';':
             print('its a procedure call using \';\' in line ' + token[2])
+            clearTopTypeStack()
             token = analyzer.next()
             return
         else:
@@ -296,6 +421,7 @@ def commands():
                 token = analyzer.next()
                 expressionAnalyzer()
                 if token[0] == 'then':
+                    verifyBooleanResult()
                     print('Found \'Then\' command')
                     token = analyzer.next()
                     commands()
@@ -315,6 +441,7 @@ def commands():
                 token = analyzer.next()
                 expressionAnalyzer()
                 if token[0] == 'do':
+                    verifyBooleanResult()
                     print('\'Do\' command found')
                     token = analyzer.next()
                     commandList()
@@ -344,6 +471,8 @@ def compoundCommand():
         if token[0] == 'end':
             print('I found a \'end\' after begin')
             token = analyzer.next()
+            if token[0] == ';':
+                token = analyzer.next()
         else:
             print('ERROR: EXPECTED \'end\' BUT ' + token[0] + ' IN LINE ' + token[2])
             sys.exit()
@@ -353,9 +482,10 @@ def compoundCommand():
         sys.exit()
 
 def synAnalysis(tokenList):
-    global symbolStack, identifierStack
+    global symbolStack, identifierStack, typeControlStack
     symbolStack = [('mark', None)]
     identifierStack = []
+    typeControlStack = []
     # Instance of tokenAnalyzer to return next token using token list from lexer
     global analyzer, token 
     analyzer = tokenAnalyzer(tokenList)
@@ -367,12 +497,12 @@ def synAnalysis(tokenList):
     if token[0] == 'program':
         token = analyzer.next()
         if token[1] == 'IDENTIFIER':
-            symbolStack.append((token[0], 'None'))
+            symbolStack.append((token[0], 'program'))
             token = analyzer.next()
             if token[0] == ';':
                 token = analyzer.next()
                 varDeclaration()
-                subProgramDeclaration()
+                subProgramDeclarations()
                 compoundCommand()
                 cleanStack()
             else:

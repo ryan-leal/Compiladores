@@ -14,7 +14,8 @@ var
 begin
 	{myVar6 := 10 + 5 * ( a+4+a+4 /4);}
 	myVar7 := myVar6 + 2;
-	myVar8 := true
+	myVar8 := myVar6 <= myVar7;
+	myVar8 := myVar8 or myVar8;
 end
 begin
 	{myVar1 := 10 + 5 * ( a+4+a+4 /4);}
@@ -27,7 +28,6 @@ begin % @
 	{valor5 := 10.2;
 	valor3 := .234;
 	valor9 := 12.;
-	valor1 >= valor2;
 	valor2 < valor3;
 	valor1 = valor2;
 	valor3 <> valor1;}
