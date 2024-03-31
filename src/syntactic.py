@@ -12,12 +12,14 @@ class tokenAnalyzer:
             self.posicao_atual += 1
             return token
         else:
-            return None  # Retorna None se não houver mais tokens
+            return None  # Return None if has no more tokens
 
 ########## SEMANTIC FUNCTIONS ################
-    
+
+# Function to verify if a variable is declared
 def findInStack(var):
     global symbolStack
+    # If is program name... ERROR
     if var == symbolStack[1][0]:
         print('ERROR: TRYING TO USE PROGAM NAME ' + var)
         sys.exit()
@@ -25,9 +27,10 @@ def findInStack(var):
         if values[0] == var:
             print(var + ' found in stack, can be used')
             return values[1]
-    print('ERROR: TRYING TO USE UNDECLEARED VAR NAMED ' + var)
+    print('ERROR: TRYING TO USE UNDECLEARED VAR NAMED ' + var) # If don't find
     sys.exit()
 
+# Clean the stack until find Mark, remove all var's from the local scope
 def cleanStack():
     global symbolStack
     print('=====Before Clean Stack Scope=========')
@@ -38,8 +41,10 @@ def cleanStack():
     print('=====After Clean Stack Scope=========')
     print(symbolStack)
 
+# Verify is not declared in scope
 def isInStack(var):
     global identifierStack, symbolStack
+    #Trying to declare a var with program name
     if var == symbolStack[1][0]:
         print('ERROR: TRYING TO DECLARE ' + var + ' BUT IT\'S THE PROGRAM NAME')
         sys.exit()
@@ -51,22 +56,27 @@ def isInStack(var):
             print('ERROR: TRYING TO DECLARE ' + var + ' BUT IS ALREADY DECLARED IN SCOPE')
             sys.exit()
 
+# Add the var in scope, if is not declared in scope yet 
 def stackAppend(typeStack):
     global identifierStack, symbolStack
     for vars in identifierStack:
         isInStack(vars)
         symbolStack.append((vars, typeStack))
-    identifierStack = []
+    identifierStack = [] # Clear the ident. stack
 
+# Pop top and subtop values and add the result in Type Control Stack
 def updateTypeStack(resultType):
     global typeControlStack
     typeControlStack.pop()
     typeControlStack.pop()
     typeControlStack.append(resultType)
 
+# Type Verification for operations
 def typeStackChecker(isRel = 0, isBoolOp = 0):
     global typeControlStack
+    # If is a boolean operation...
     if isBoolOp:
+        # If is a boolean operation between boolean values...
         if typeControlStack[-1] == 'boolean' and typeControlStack[-2] == 'boolean':
             print('Boolean Operation beetween two booleans - OK')
             updateTypeStack('boolean')
@@ -75,6 +85,7 @@ def typeStackChecker(isRel = 0, isBoolOp = 0):
             print('ERROR: TRYING TO MAKE A BOOLEAN OPERATION BETWEEN ' + typeControlStack[-1] +' AND ' + typeControlStack[-2])
             sys.exit()
     else:
+        # If isRel == 1, it's a relational operation, so the result is a boolean
         if typeControlStack[-1] == 'integer' and typeControlStack[-2] == 'integer':
             print('Operation between integer and integer - OK')
             if isRel:
@@ -99,7 +110,8 @@ def typeStackChecker(isRel = 0, isBoolOp = 0):
         else:
             print('ERROR: TRYING TO MAKE A OPERATION BETWEEN ' + typeControlStack[-1] +' AND ' + typeControlStack[-2])
             sys.exit()
-    
+
+# Assignment Type Verification    
 def assignStackChecker():
     global typeControlStack
     if typeControlStack[-1] == 'integer' and typeControlStack[-2] == 'integer':
@@ -122,6 +134,7 @@ def assignStackChecker():
         print('ERROR: TRYING TO ASSIGN A ' + typeControlStack[-1] +' IN A ' + typeControlStack[-2] + ' VAR')
         sys.exit()
 
+# Verify if the expression in IF / WHILE statement is a boolean 
 def verifyBooleanResult():
     global typeControlStack
     print('Verifying if a Boolean value is resulted after IF / WHILE Expression Analysis...')
@@ -136,8 +149,13 @@ def verifyBooleanResult():
         print('ERROR: AFTER IF / WHILE STATEMENT, TOP MUST BE AN BOOLEAN')
         sys.exit()
 
+# Clear the Stack until find procedure (used to clean stack after procedure call command)
 def clearTopTypeStack():
     global typeControlStack
+    for x in typeControlStack[::-1]:
+        if x == 'procedure':
+            break
+        typeControlStack.pop()
     typeControlStack.pop()
     print('Cleaning top of TypeControlStack...')
     print(typeControlStack)
@@ -386,7 +404,6 @@ def commands():
             return
         elif token[0] == '(':
             print('its a procedure call using ()')
-            clearTopTypeStack()
             token = analyzer.next()
             expressionList()
             if token[0] == ')':
